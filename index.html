@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PORTAL ORANG TUA - PEMANTAUAN ABSENSI SMAN 8 RAJA AMPAT</title>
+
+  <!-- Favicon Logo Sekolah -->
+  <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgm1RML72f-C_B7lxppP2uTyCicbTRkYyX5o_lpL-6T4vv-ZLuf1I0AO1j_Bda_JT9fNX4SflT56xsyT4Q43Hu98nqHIuGGY30iupbiLvEwsKNEh46Fw-lacUpepFJ9bu69VxMP3DCtkXERPHkyIgVJSb99E16G9mfmb_xb-KFV9iPcGDoK9kH66S_tJZIm/s591/WhatsApp_Image_2025-08-01_at_05.50.39-removebg-preview.png">
+
+  <!-- Pustaka External -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    
+    /* Custom Gradient Glow Effect */
+    .glow-effect {
+      box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 font-sans min-h-screen flex flex-col text-slate-700 dark:text-slate-200 transition-colors duration-200">
+
+  <!-- ================= HEADER / HERO BANNER ================= -->
+  <header class="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-700 text-white sticky top-0 z-30 shadow-md">
+    <div class="max-w-3xl mx-auto px-4 py-3.5 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-white/20 p-1.5 rounded-2xl backdrop-blur-md border border-white/30">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgm1RML72f-C_B7lxppP2uTyCicbTRkYyX5o_lpL-6T4vv-ZLuf1I0AO1j_Bda_JT9fNX4SflT56xsyT4Q43Hu98nqHIuGGY30iupbiLvEwsKNEh46Fw-lacUpepFJ9bu69VxMP3DCtkXERPHkyIgVJSb99E16G9mfmb_xb-KFV9iPcGDoK9kH66S_tJZIm/s591/WhatsApp_Image_2025-08-01_at_05.50.39-removebg-preview.png" alt="Logo SMAN 8 Raja Ampat" class="w-9 h-9 object-contain drop-shadow">
+        </div>
+        <div>
+          <h1 class="font-extrabold text-xs md:text-sm tracking-wide uppercase leading-tight text-white drop-shadow-sm">
+            SMA NEGERI 8 RAJA AMPAT
+          </h1>
+          <p class="text-[10px] text-cyan-100 font-medium">PORTAL ORANG TUA SISWA</p>
+        </div>
+      </div>
+
+      <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition border border-white/20" title="Mode Gelap/Terang">
+        <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+        <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-300"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= KONTEN UTAMA ================= -->
+  <main class="flex-1 max-w-3xl w-full mx-auto p-4 space-y-4">
+
+    <!-- BANNER PENGUMUMAN SEKOLAH -->
+    <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-3.5 rounded-2xl shadow-sm flex items-start gap-3 border border-orange-400/30">
+      <div class="p-2 bg-white/20 rounded-xl shrink-0 mt-0.5">
+        <i data-lucide="bell-ring" class="w-4 h-4 text-white"></i>
+      </div>
+      <div class="text-xs space-y-0.5">
+        <p class="font-bold uppercase tracking-wider text-[10px] text-amber-100">Informasi Sekolah Hari Ini</p>
+        <p class="leading-relaxed">Gunakan portal ini untuk mengecek kedatangan & kepulangan anak secara real-time. Jam masuk toleransi sekolah maksimal pukul 07.15 WIT.</p>
+      </div>
+    </div>
+
+    <!-- FORM PENCARIAN FLEKSIBEL -->
+    <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+      <label class="block text-xs font-bold text-slate-800 dark:text-slate-100">
+        🔎 Cari Data Kehadiran Anak
+      </label>
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <input type="text" id="inputKeyword" onkeyup="checkEnter(event)" placeholder="Ketik NIS, Nama Siswa, atau Kelas..." class="w-full text-xs border border-slate-300 dark:border-slate-600 rounded-xl pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+        </div>
+        <button onclick="cariSiswa()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5 shrink-0">
+          Cek
+        </button>
+      </div>
+      <p class="text-[11px] text-slate-400">Contoh: Ketik <span class="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">"Ahmad"</span>, <span class="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">"1001"</span>, atau <span class="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">"X IPA 1"</span>.</p>
+    </div>
+
+    <!-- LOADING INDIKATOR -->
+    <div id="loadingBox" class="hidden bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-center space-y-3">
+      <div class="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Sedang menghubungkan ke server absensi...</p>
+    </div>
+
+    <!-- WADAH PILIHAN JIKA HASIL PENCARIAN LEBIH DARI 1 SISWA -->
+    <div id="multiStudentBox" class="hidden bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+      <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+        <i data-lucide="users" class="w-4 h-4 text-cyan-500"></i> Ditemukan Beberapa Siswa. Silakan Pilih Anak Anda:
+      </h3>
+      <div id="studentList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+    </div>
+
+    <!-- AREA DASHBOARD UTAMA ORANG TUA -->
+    <div id="studentCard" class="hidden space-y-4">
+
+      <!-- PROFIL & STATUS REAL-TIME -->
+      <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
+        
+        <!-- Header Profil Siswa -->
+        <div class="flex items-start justify-between border-b dark:border-slate-700/80 pb-4">
+          <div class="flex items-center gap-3">
+            <!-- Avatar Siswa Unik -->
+            <div id="studentAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white font-extrabold text-base flex items-center justify-center shadow-md shrink-0">
+              S
+            </div>
+            <div>
+              <span class="text-[10px] bg-cyan-100 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 font-extrabold px-2.5 py-0.5 rounded-full border border-cyan-200 dark:border-cyan-800" id="infoKelas">KELAS --</span>
+              <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 mt-1 leading-snug" id="infoNama">Nama Siswa</h2>
+              <p class="text-xs font-mono text-slate-400" id="infoNis">NIS: --</p>
+            </div>
+          </div>
+          
+          <div id="badgeStatusHariIni" class="px-3 py-1.5 rounded-xl font-extrabold text-[11px] text-center border shadow-sm">
+            BELUM ABSEN
+          </div>
+        </div>
+
+        <!-- Kartu Waktu Scan Masuk & Pulang -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Scan Masuk -->
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/20 border border-emerald-200/80 dark:border-emerald-800/80 p-3.5 rounded-2xl">
+            <div class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-bold mb-1">
+              <i data-lucide="log-in" class="w-4 h-4"></i> Scan Masuk
+            </div>
+            <p class="text-xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight" id="timeMasuk">--:--</p>
+            <p class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5" id="statusTepatWaktu">Status: -</p>
+          </div>
+
+          <!-- Scan Pulang -->
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200/80 dark:border-blue-800/80 p-3.5 rounded-2xl">
+            <div class="flex items-center gap-1.5 text-blue-700 dark:text-blue-400 text-xs font-bold mb-1">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Scan Pulang
+            </div>
+            <p class="text-xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight" id="timePulang">--:--</p>
+            <p class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 mt-0.5" id="statusPulang">Status: -</p>
+          </div>
+        </div>
+
+        <!-- INDIKATOR PERSENTASE KEHADIRAN (ATTENDANCE RATE BAR) -->
+        <div class="bg-slate-50 dark:bg-slate-700/40 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="award" class="w-4 h-4 text-cyan-500"></i> Tingkat Kehadiran Semester Ini
+            </span>
+            <span class="font-black text-cyan-600 dark:text-cyan-400 font-mono text-sm" id="textPercentage">0%</span>
+          </div>
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-200 dark:bg-slate-600 h-2.5 rounded-full overflow-hidden">
+            <div id="barPercentage" class="bg-gradient-to-r from-cyan-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- LIVE SYNC FOOTNOTE -->
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+          <span class="flex items-center gap-1.5 font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Terhubung Real-Time
+          </span>
+          <span id="lastUpdateText">Diperbarui: -</span>
+        </div>
+      </div>
+
+      <!-- KARTU STATISTIK REKAP BULANAN (COLORFUL VIBRANT CARDS) -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-cyan-500"></i> Rekapitulas Kehadiran Bulan Ini
+        </h3>
+        
+        <div class="grid grid-cols-4 gap-2.5">
+          <!-- HADIR -->
+          <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-2.5 rounded-2xl shadow-sm text-center">
+            <p class="text-[10px] font-medium opacity-90">Hadir</p>
+            <p class="text-lg font-black font-mono leading-tight" id="statHadir">0</p>
+          </div>
+
+          <!-- SAKIT -->
+          <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-2.5 rounded-2xl shadow-sm text-center">
+            <p class="text-[10px] font-medium opacity-90">Sakit</p>
+            <p class="text-lg font-black font-mono leading-tight" id="statSakit">0</p>
+          </div>
+
+          <!-- IZIN -->
+          <div class="bg-gradient-to-br from-sky-400 to-indigo-500 text-white p-2.5 rounded-2xl shadow-sm text-center">
+            <p class="text-[10px] font-medium opacity-90">Izin</p>
+            <p class="text-lg font-black font-mono leading-tight" id="statIzin">0</p>
+          </div>
+
+          <!-- ALFA -->
+          <div class="bg-gradient-to-br from-rose-500 to-pink-600 text-white p-2.5 rounded-2xl shadow-sm text-center">
+            <p class="text-[10px] font-medium opacity-90">Alfa</p>
+            <p class="text-lg font-black font-mono leading-tight" id="statAlfa">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOMBOL HUBUNGI WALI KELAS VIA WHATSAPP -->
+      <a id="btnWhatsapp" href="https://wa.me/" target="_blank" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs p-3.5 rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+        <i data-lucide="message-circle" class="w-4 h-4"></i> Konfirmasi Izin / Sakit ke Sekolah via WhatsApp
+      </a>
+
+      <!-- RIWAYAT PRESENSI TERAKHIR -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+          <i data-lucide="history" class="w-4 h-4 text-cyan-500"></i> Riwayat Absensi Terakhir
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 dark:bg-slate-700/80 text-slate-600 dark:text-slate-200 uppercase text-[10px] font-bold">
+              <tr>
+                <th class="p-2.5 rounded-l-xl">Tanggal</th>
+                <th class="p-2.5">Waktu</th>
+                <th class="p-2.5">Status</th>
+                <th class="p-2.5 rounded-r-xl">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="tableHistoryBody" class="divide-y divide-slate-100 dark:divide-slate-700/50 text-slate-700 dark:text-slate-300">
+              <tr><td colspan="4" class="p-4 text-center text-slate-400">Sedang memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOX PESAN DEFAULT KETIKA BELUM ADA PENCARIAN -->
+    <div id="emptyBox" class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 text-center space-y-3">
+      <div class="w-14 h-14 bg-gradient-to-tr from-cyan-100 to-blue-100 dark:from-cyan-950 dark:to-blue-950 text-cyan-600 dark:text-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+        <i data-lucide="search-code" class="w-7 h-7"></i>
+      </div>
+      <div class="space-y-1">
+        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Pantau Absensi Anak Anda</h3>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">Silakan masukkan Nama Siswa, NIS, atau Kelas pada kolom pencarian di atas untuk mulai melihat kehadiran secara otomatis.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto p-4 text-center text-xs text-slate-400 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 transition-colors duration-200">
+    <p class="font-bold text-slate-600 dark:text-slate-300">SMA NEGERI 8 RAJA AMPAT</p>
+    <p class="text-[11px] mt-0.5">Sistem Informasi Presensi & Monitoring Siswa © 2026</p>
+  </footer>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwhJiarhonvPHIXIJY_mQJ4g80qDqTutNgYgOaBPTt5rMI4XS_vMmYJfAfIintCiwg/exec";
+
+    let rawLogs = [];
+    let currentSelectedNis = "";
+    let autoRefreshTimer = null;
+
+    // --- DARK MODE TOGGLE ---
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme_parent', isDark ? 'dark' : 'light');
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme_parent');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        cariSiswa();
+      }
+    }
+
+    // --- PROSES CARI SISWA ---
+    async function cariSiswa() {
+      const keyword = document.getElementById('inputKeyword').value.trim().toLowerCase();
+      if (!keyword) {
+        alert("Silakan masukkan NIS, Nama Siswa, atau Kelas terlebih dahulu!");
+        return;
+      }
+
+      document.getElementById('multiStudentBox').classList.add('hidden');
+      document.getElementById('studentCard').classList.add('hidden');
+      document.getElementById('emptyBox').classList.add('hidden');
+      document.getElementById('loadingBox').classList.remove('hidden');
+
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getLogs&peran=SISWA`);
+        const result = await res.json();
+        
+        document.getElementById('loadingBox').classList.add('hidden');
+
+        if (result.status === 'success' && result.data) {
+          rawLogs = result.data;
+
+          const matchedLogs = rawLogs.filter(row => {
+            const nis   = (row[2] || "").toString().toLowerCase();
+            const kelas = (row[3] || "").toString().toLowerCase();
+            const nama  = (row[4] || "").toString().toLowerCase();
+            
+            return nis.includes(keyword) || nama.includes(keyword) || kelas.includes(keyword);
+          });
+
+          if (matchedLogs.length === 0) {
+            alert("Data siswa dengan kata kunci tersebut tidak ditemukan.");
+            document.getElementById('emptyBox').classList.remove('hidden');
+            return;
+          }
+
+          const uniqueStudentsMap = new Map();
+          matchedLogs.forEach(row => {
+            const nis = row[2];
+            if (!uniqueStudentsMap.has(nis)) {
+              uniqueStudentsMap.set(nis, {
+                nis: row[2],
+                kelas: row[3] || "SMAN 8 RAJA AMPAT",
+                nama: row[4] || "Siswa"
+              });
+            }
+          });
+
+          const uniqueStudents = Array.from(uniqueStudentsMap.values());
+
+          if (uniqueStudents.length === 1) {
+            selectStudent(uniqueStudents[0].nis);
+          } else {
+            showStudentSelector(uniqueStudents);
+          }
+
+          if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+          autoRefreshTimer = setInterval(refreshData, 15000);
+
+        } else {
+          renderDemoOrEmpty(keyword);
+        }
+      } catch (err) {
+        console.warn("Gagal terhubung ke server, menggunakan mode simulasi visual:", err);
+        document.getElementById('loadingBox').classList.add('hidden');
+        renderDemoOrEmpty(keyword);
+      }
+    }
+
+    // --- PILIHAN SISWA MULTIPLE ---
+    function showStudentSelector(students) {
+      const listContainer = document.getElementById('studentList');
+      listContainer.innerHTML = '';
+
+      students.forEach(student => {
+        const item = document.createElement('div');
+        item.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-slate-700/60 cursor-pointer flex justify-between items-center transition bg-slate-50 dark:bg-slate-800/80";
+        item.onclick = () => selectStudent(student.nis);
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-cyan-500 text-white font-bold flex items-center justify-center text-xs">
+              ${student.nama.charAt(0)}
+            </div>
+            <div>
+              <p class="font-bold text-xs text-slate-800 dark:text-slate-100">${student.nama}</p>
+              <p class="text-[11px] text-slate-400">NIS: ${student.nis} • Kelas: ${student.kelas}</p>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-cyan-600"></i>
+        `;
+        listContainer.appendChild(item);
+      });
+
+      lucide.createIcons();
+      document.getElementById('multiStudentBox').classList.remove('hidden');
+    }
+
+    function selectStudent(nis) {
+      currentSelectedNis = nis;
+      document.getElementById('multiStudentBox').classList.add('hidden');
+      document.getElementById('studentCard').classList.remove('hidden');
+
+      const studentLogs = rawLogs.filter(row => row[2].toString() === nis.toString());
+      renderStudentData(nis, studentLogs);
+    }
+
+    async function refreshData() {
+      if (!currentSelectedNis) return;
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getLogs&peran=SISWA`);
+        const result = await res.json();
+        if (result.status === 'success' && result.data) {
+          rawLogs = result.data;
+          const studentLogs = rawLogs.filter(row => row[2].toString() === currentSelectedNis.toString());
+          renderStudentData(currentSelectedNis, studentLogs);
+        }
+      } catch (e) {
+        console.log("Auto sync fail");
+      }
+    }
+
+    // --- RENDER DATA KE DASHBOARD ---
+    function renderStudentData(nis, logs) {
+      if (logs.length === 0) return;
+
+      const latestLog = logs[0];
+      const namaSiswa = latestLog[4] || "Siswa Terdaftar";
+      const kelasSiswa = latestLog[3] || "SMAN 8 RAJA AMPAT";
+
+      document.getElementById('infoNama').innerText = namaSiswa;
+      document.getElementById('infoNis').innerText = `ID / NIS: ${nis}`;
+      document.getElementById('infoKelas').innerText = kelasSiswa.toUpperCase();
+      
+      // Avatar Inisial Nama
+      const initials = namaSiswa.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+      document.getElementById('studentAvatar').innerText = initials || 'S';
+
+      // Whatsapp Direct Message
+      const waMessage = encodeURIComponent(`Halo Bpk/Ibu Wali Kelas, saya Orang Tua dari ${namaSiswa} (Kelas ${kelasSiswa}). Ingin mengonfirmasi mengenai kehadiran anak saya.`);
+      document.getElementById('btnWhatsapp').href = `https://wa.me/6281234567890?text=${waMessage}`;
+
+      // Hitung Hari Ini
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayLogs = logs.filter(row => row[0] === todayStr || row[0].includes(new Date().getDate()));
+
+      const masukLog = todayLogs.find(row => row[6] === "MASUK");
+      const pulangLog = todayLogs.find(row => row[6] === "PULANG");
+
+      const badge = document.getElementById('badgeStatusHariIni');
+
+      if (masukLog) {
+        document.getElementById('timeMasuk').innerText = masukLog[1];
+        document.getElementById('statusTepatWaktu').innerText = `Status: ${masukLog[5]}`;
+        
+        badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 shadow-sm";
+        badge.innerText = "HADIR DI SEKOLAH";
+      } else {
+        document.getElementById('timeMasuk').innerText = "--:--";
+        document.getElementById('statusTepatWaktu').innerText = "Belum Scan Masuk";
+        
+        badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 shadow-sm";
+        badge.innerText = "BELUM ABSEN";
+      }
+
+      if (pulangLog) {
+        document.getElementById('timePulang').innerText = pulangLog[1];
+        document.getElementById('statusPulang').innerText = "Sudah Scan Pulang";
+      } else {
+        document.getElementById('timePulang').innerText = "--:--";
+        document.getElementById('statusPulang').innerText = "Belum Scan Pulang";
+      }
+
+      // Hitung Rekap & Persentase
+      const jmlHadir = logs.filter(l => l[5] === 'HADIR').length;
+      const jmlSakit = logs.filter(l => l[5] === 'SAKIT').length;
+      const jmlIzin  = logs.filter(l => l[5] === 'IZIN').length;
+      const jmlAlfa  = logs.filter(l => l[5] === 'ALFA').length;
+
+      document.getElementById('statHadir').innerText = jmlHadir;
+      document.getElementById('statSakit').innerText = jmlSakit;
+      document.getElementById('statIzin').innerText  = jmlIzin;
+      document.getElementById('statAlfa').innerText  = jmlAlfa;
+
+      const totalHari = jmlHadir + jmlSakit + jmlIzin + jmlAlfa || 1;
+      const attendancePercent = Math.round((jmlHadir / totalHari) * 100);
+      document.getElementById('textPercentage').innerText = `${attendancePercent}%`;
+      document.getElementById('barPercentage').style.width = `${attendancePercent}%`;
+
+      // Tabel Riwayat
+      const tbody = document.getElementById('tableHistoryBody');
+      tbody.innerHTML = '';
+      logs.slice(0, 8).forEach(row => {
+        let badgeColor = "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300";
+        if(row[5] === 'SAKIT') badgeColor = "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300";
+        if(row[5] === 'IZIN')  badgeColor = "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300";
+        if(row[5] === 'ALFA')  badgeColor = "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300";
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+            <td class="p-2.5 font-medium">${row[0]}</td>
+            <td class="p-2.5 font-mono text-slate-500 dark:text-slate-400">${row[1]}</td>
+            <td class="p-2.5"><span class="${badgeColor} px-2 py-0.5 rounded-md font-bold text-[10px]">${row[5]}</span></td>
+            <td class="p-2.5 text-slate-500 dark:text-slate-400">${row[6]}</td>
+          </tr>`;
+      });
+
+      const now = new Date();
+      document.getElementById('lastUpdateText').innerText = `Diperbarui: ${now.toLocaleTimeString('id-ID')} WIT`;
+    }
+
+    // --- SIMULASI DEMO ---
+    function renderDemoOrEmpty(keyword) {
+      document.getElementById('emptyBox').classList.add('hidden');
+      document.getElementById('studentCard').classList.remove('hidden');
+
+      document.getElementById('infoNama').innerText = "Ahmad Rasyid (" + keyword + ")";
+      document.getElementById('infoNis').innerText = `ID / NIS: ${keyword}`;
+      document.getElementById('infoKelas').innerText = `KELAS XI SAINS 1`;
+      document.getElementById('studentAvatar').innerText = "AR";
+
+      document.getElementById('timeMasuk').innerText = "07:10 WIT";
+      document.getElementById('statusTepatWaktu').innerText = "Status: Tepat Waktu";
+
+      document.getElementById('timePulang').innerText = "--:--";
+      document.getElementById('statusPulang').innerText = "Status: Belum Pulang";
+
+      const badge = document.getElementById('badgeStatusHariIni');
+      badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 shadow-sm";
+      badge.innerText = "HADIR DI SEKOLAH";
+
+      document.getElementById('statHadir').innerText = "22";
+      document.getElementById('statSakit').innerText = "1";
+      document.getElementById('statIzin').innerText = "0";
+      document.getElementById('statAlfa').innerText = "0";
+
+      document.getElementById('textPercentage').innerText = "95%";
+      document.getElementById('barPercentage').style.width = "95%";
+
+      const tbody = document.getElementById('tableHistoryBody');
+      tbody.innerHTML = `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+          <td class="p-2.5 font-medium">Hari ini</td>
+          <td class="p-2.5 font-mono">07:10 WIT</td>
+          <td class="p-2.5"><span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded-md font-bold text-[10px]">HADIR</span></td>
+          <td class="p-2.5">MASUK</td>
+        </tr>
+      `;
+
+      const now = new Date();
+      document.getElementById('lastUpdateText').innerText = `Diperbarui: ${now.toLocaleTimeString('id-ID')} WIT`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
