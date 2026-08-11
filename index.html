@@ -22,7 +22,6 @@
     ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
     
-    /* Custom Gradient Glow Effect */
     .glow-effect {
       box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15);
     }
@@ -143,7 +142,7 @@
           </div>
         </div>
 
-        <!-- INDIKATOR PERSENTASE KEHADIRAN (ATTENDANCE RATE BAR) -->
+        <!-- INDIKATOR PERSENTASE KEHADIRAN -->
         <div class="bg-slate-50 dark:bg-slate-700/40 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 space-y-2">
           <div class="flex justify-between items-center text-xs">
             <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
@@ -151,7 +150,6 @@
             </span>
             <span class="font-black text-cyan-600 dark:text-cyan-400 font-mono text-sm" id="textPercentage">0%</span>
           </div>
-          <!-- Progress Bar -->
           <div class="w-full bg-slate-200 dark:bg-slate-600 h-2.5 rounded-full overflow-hidden">
             <div id="barPercentage" class="bg-gradient-to-r from-cyan-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
@@ -166,32 +164,28 @@
         </div>
       </div>
 
-      <!-- KARTU STATISTIK REKAP BULANAN (COLORFUL VIBRANT CARDS) -->
+      <!-- KARTU STATISTIK REKAP BULANAN -->
       <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-3">
         <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-          <i data-lucide="pie-chart" class="w-4 h-4 text-cyan-500"></i> Rekapitulas Kehadiran Bulan Ini
+          <i data-lucide="pie-chart" class="w-4 h-4 text-cyan-500"></i> Rekapitulasi Kehadiran Bulan Ini
         </h3>
         
         <div class="grid grid-cols-4 gap-2.5">
-          <!-- HADIR -->
           <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-2.5 rounded-2xl shadow-sm text-center">
             <p class="text-[10px] font-medium opacity-90">Hadir</p>
             <p class="text-lg font-black font-mono leading-tight" id="statHadir">0</p>
           </div>
 
-          <!-- SAKIT -->
           <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-2.5 rounded-2xl shadow-sm text-center">
             <p class="text-[10px] font-medium opacity-90">Sakit</p>
             <p class="text-lg font-black font-mono leading-tight" id="statSakit">0</p>
           </div>
 
-          <!-- IZIN -->
           <div class="bg-gradient-to-br from-sky-400 to-indigo-500 text-white p-2.5 rounded-2xl shadow-sm text-center">
             <p class="text-[10px] font-medium opacity-90">Izin</p>
             <p class="text-lg font-black font-mono leading-tight" id="statIzin">0</p>
           </div>
 
-          <!-- ALFA -->
           <div class="bg-gradient-to-br from-rose-500 to-pink-600 text-white p-2.5 rounded-2xl shadow-sm text-center">
             <p class="text-[10px] font-medium opacity-90">Alfa</p>
             <p class="text-lg font-black font-mono leading-tight" id="statAlfa">0</p>
@@ -255,6 +249,20 @@
     let currentSelectedNis = "";
     let autoRefreshTimer = null;
 
+    // --- HELPER UNTUK MEMBACA DATA ARRAY / OBJEK SECARA FLEKSIBEL ---
+    function getVal(row, arrIdx, ...objKeys) {
+      if (!row) return "";
+      if (Array.isArray(row)) {
+        return row[arrIdx] !== undefined && row[arrIdx] !== null ? row[arrIdx] : "";
+      }
+      if (typeof row === 'object') {
+        for (let k of objKeys) {
+          if (row[k] !== undefined && row[k] !== null) return row[k];
+        }
+      }
+      return "";
+    }
+
     // --- DARK MODE TOGGLE ---
     function toggleDarkMode() {
       const isDark = document.documentElement.classList.toggle('dark');
@@ -300,9 +308,9 @@
           rawLogs = result.data;
 
           const matchedLogs = rawLogs.filter(row => {
-            const nis   = (row[2] || "").toString().toLowerCase();
-            const kelas = (row[3] || "").toString().toLowerCase();
-            const nama  = (row[4] || "").toString().toLowerCase();
+            const nis   = String(getVal(row, 2, 'nis', 'NIS', 'id')).toLowerCase();
+            const kelas = String(getVal(row, 3, 'kelas', 'Kelas', 'KELAS')).toLowerCase();
+            const nama  = String(getVal(row, 4, 'nama', 'Nama', 'NAMA')).toLowerCase();
             
             return nis.includes(keyword) || nama.includes(keyword) || kelas.includes(keyword);
           });
@@ -315,12 +323,12 @@
 
           const uniqueStudentsMap = new Map();
           matchedLogs.forEach(row => {
-            const nis = row[2];
-            if (!uniqueStudentsMap.has(nis)) {
+            const nis = getVal(row, 2, 'nis', 'NIS', 'id');
+            if (nis && !uniqueStudentsMap.has(nis)) {
               uniqueStudentsMap.set(nis, {
-                nis: row[2],
-                kelas: row[3] || "SMAN 8 RAJA AMPAT",
-                nama: row[4] || "Siswa"
+                nis: nis,
+                kelas: getVal(row, 3, 'kelas', 'Kelas', 'KELAS') || "SMAN 8 RAJA AMPAT",
+                nama: getVal(row, 4, 'nama', 'Nama', 'NAMA') || "Siswa"
               });
             }
           });
@@ -329,8 +337,11 @@
 
           if (uniqueStudents.length === 1) {
             selectStudent(uniqueStudents[0].nis);
-          } else {
+          } else if (uniqueStudents.length > 1) {
             showStudentSelector(uniqueStudents);
+          } else {
+            alert("Data siswa tidak valid.");
+            document.getElementById('emptyBox').classList.remove('hidden');
           }
 
           if (autoRefreshTimer) clearInterval(autoRefreshTimer);
@@ -379,7 +390,7 @@
       document.getElementById('multiStudentBox').classList.add('hidden');
       document.getElementById('studentCard').classList.remove('hidden');
 
-      const studentLogs = rawLogs.filter(row => row[2].toString() === nis.toString());
+      const studentLogs = rawLogs.filter(row => String(getVal(row, 2, 'nis', 'NIS', 'id')) === String(nis));
       renderStudentData(nis, studentLogs);
     }
 
@@ -390,7 +401,7 @@
         const result = await res.json();
         if (result.status === 'success' && result.data) {
           rawLogs = result.data;
-          const studentLogs = rawLogs.filter(row => row[2].toString() === currentSelectedNis.toString());
+          const studentLogs = rawLogs.filter(row => String(getVal(row, 2, 'nis', 'NIS', 'id')) === String(currentSelectedNis));
           renderStudentData(currentSelectedNis, studentLogs);
         }
       } catch (e) {
@@ -398,19 +409,19 @@
       }
     }
 
-    // --- RENDER DATA KE DASHBOARD ---
+    // --- RENDER DATA SCAN MASUK & PULANG REAL-TIME KE DASHBOARD ---
     function renderStudentData(nis, logs) {
-      if (logs.length === 0) return;
+      if (!logs || logs.length === 0) return;
 
       const latestLog = logs[0];
-      const namaSiswa = latestLog[4] || "Siswa Terdaftar";
-      const kelasSiswa = latestLog[3] || "SMAN 8 RAJA AMPAT";
+      const namaSiswa  = getVal(latestLog, 4, 'nama', 'Nama', 'NAMA') || "Siswa Terdaftar";
+      const kelasSiswa = getVal(latestLog, 3, 'kelas', 'Kelas', 'KELAS') || "SMAN 8 RAJA AMPAT";
 
       document.getElementById('infoNama').innerText = namaSiswa;
       document.getElementById('infoNis').innerText = `ID / NIS: ${nis}`;
-      document.getElementById('infoKelas').innerText = kelasSiswa.toUpperCase();
+      document.getElementById('infoKelas').innerText = String(kelasSiswa).toUpperCase();
       
-      // Avatar Inisial Nama
+      // Avatar Inisial
       const initials = namaSiswa.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
       document.getElementById('studentAvatar').innerText = initials || 'S';
 
@@ -418,42 +429,72 @@
       const waMessage = encodeURIComponent(`Halo Bpk/Ibu Wali Kelas, saya Orang Tua dari ${namaSiswa} (Kelas ${kelasSiswa}). Ingin mengonfirmasi mengenai kehadiran anak saya.`);
       document.getElementById('btnWhatsapp').href = `https://wa.me/6281234567890?text=${waMessage}`;
 
-      // Hitung Hari Ini
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayLogs = logs.filter(row => row[0] === todayStr || row[0].includes(new Date().getDate()));
+      // Filter Log Hari Ini / Terakhir untuk Scan Masuk & Pulang
+      const now = new Date();
+      const todayISO = now.toISOString().split('T')[0];
+      const todayNum = now.getDate();
 
-      const masukLog = todayLogs.find(row => row[6] === "MASUK");
-      const pulangLog = todayLogs.find(row => row[6] === "PULANG");
+      let todayLogs = logs.filter(row => {
+        const tgl = String(getVal(row, 0, 'tanggal', 'date', 'Timestamp', 'timestamp'));
+        return tgl.includes(todayISO) || tgl.includes(String(todayNum));
+      });
+
+      // Apabila format tanggal berbeda, gunakan seluruh log aktif siswa
+      if (todayLogs.length === 0) {
+        todayLogs = logs;
+      }
+
+      // Cari Entri Scan Masuk & Scan Pulang
+      const masukLog = todayLogs.find(row => {
+        const tipe = String(getVal(row, 6, 'tipe', 'Tipe', 'jenis', 'status', 'keterangan')).toUpperCase();
+        return tipe.includes("MASUK");
+      });
+
+      const pulangLog = todayLogs.find(row => {
+        const tipe = String(getVal(row, 6, 'tipe', 'Tipe', 'jenis', 'status', 'keterangan')).toUpperCase();
+        return tipe.includes("PULANG") || tipe.includes("KELUAR");
+      });
 
       const badge = document.getElementById('badgeStatusHariIni');
 
+      // Update UI Jam Masuk
       if (masukLog) {
-        document.getElementById('timeMasuk').innerText = masukLog[1];
-        document.getElementById('statusTepatWaktu').innerText = `Status: ${masukLog[5]}`;
-        
-        badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 shadow-sm";
-        badge.innerText = "HADIR DI SEKOLAH";
+        const jam = getVal(masukLog, 1, 'jam', 'waktu', 'time') || "--:--";
+        const st  = getVal(masukLog, 5, 'status', 'Status') || "Tercatat Masuk";
+        document.getElementById('timeMasuk').innerText = jam;
+        document.getElementById('statusTepatWaktu').innerText = `Status: ${st}`;
       } else {
         document.getElementById('timeMasuk').innerText = "--:--";
         document.getElementById('statusTepatWaktu').innerText = "Belum Scan Masuk";
-        
+      }
+
+      // Update UI Jam Pulang
+      if (pulangLog) {
+        const jam = getVal(pulangLog, 1, 'jam', 'waktu', 'time') || "--:--";
+        document.getElementById('timePulang').innerText = jam;
+        document.getElementById('statusPulang').innerText = "Status: Sudah Scan Pulang";
+      } else {
+        document.getElementById('timePulang').innerText = "--:--";
+        document.getElementById('statusPulang').innerText = "Status: Belum Scan Pulang";
+      }
+
+      // Update Status Badge Hari Ini
+      if (masukLog && pulangLog) {
+        badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-300 shadow-sm";
+        badge.innerText = "SUDAH PULANG";
+      } else if (masukLog) {
+        badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 shadow-sm";
+        badge.innerText = "HADIR DI SEKOLAH";
+      } else {
         badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 shadow-sm";
         badge.innerText = "BELUM ABSEN";
       }
 
-      if (pulangLog) {
-        document.getElementById('timePulang').innerText = pulangLog[1];
-        document.getElementById('statusPulang').innerText = "Sudah Scan Pulang";
-      } else {
-        document.getElementById('timePulang').innerText = "--:--";
-        document.getElementById('statusPulang').innerText = "Belum Scan Pulang";
-      }
-
       // Hitung Rekap & Persentase
-      const jmlHadir = logs.filter(l => l[5] === 'HADIR').length;
-      const jmlSakit = logs.filter(l => l[5] === 'SAKIT').length;
-      const jmlIzin  = logs.filter(l => l[5] === 'IZIN').length;
-      const jmlAlfa  = logs.filter(l => l[5] === 'ALFA').length;
+      const jmlHadir = logs.filter(l => String(getVal(l, 5, 'status', 'Status')).toUpperCase().includes('HADIR')).length || (masukLog ? 1 : 0);
+      const jmlSakit = logs.filter(l => String(getVal(l, 5, 'status', 'Status')).toUpperCase().includes('SAKIT')).length;
+      const jmlIzin  = logs.filter(l => String(getVal(l, 5, 'status', 'Status')).toUpperCase().includes('IZIN')).length;
+      const jmlAlfa  = logs.filter(l => String(getVal(l, 5, 'status', 'Status')).toUpperCase().includes('ALFA')).length;
 
       document.getElementById('statHadir').innerText = jmlHadir;
       document.getElementById('statSakit').innerText = jmlSakit;
@@ -469,25 +510,29 @@
       const tbody = document.getElementById('tableHistoryBody');
       tbody.innerHTML = '';
       logs.slice(0, 8).forEach(row => {
+        const tgl  = getVal(row, 0, 'tanggal', 'date', 'Timestamp');
+        const wkt  = getVal(row, 1, 'jam', 'waktu', 'time');
+        const st   = String(getVal(row, 5, 'status', 'Status')).toUpperCase() || "HADIR";
+        const tp   = getVal(row, 6, 'tipe', 'Tipe', 'jenis', 'keterangan') || "SCAN";
+
         let badgeColor = "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300";
-        if(row[5] === 'SAKIT') badgeColor = "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300";
-        if(row[5] === 'IZIN')  badgeColor = "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300";
-        if(row[5] === 'ALFA')  badgeColor = "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300";
+        if(st.includes('SAKIT')) badgeColor = "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300";
+        if(st.includes('IZIN'))  badgeColor = "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300";
+        if(st.includes('ALFA'))  badgeColor = "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300";
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
-            <td class="p-2.5 font-medium">${row[0]}</td>
-            <td class="p-2.5 font-mono text-slate-500 dark:text-slate-400">${row[1]}</td>
-            <td class="p-2.5"><span class="${badgeColor} px-2 py-0.5 rounded-md font-bold text-[10px]">${row[5]}</span></td>
-            <td class="p-2.5 text-slate-500 dark:text-slate-400">${row[6]}</td>
+            <td class="p-2.5 font-medium">${tgl}</td>
+            <td class="p-2.5 font-mono text-slate-500 dark:text-slate-400">${wkt}</td>
+            <td class="p-2.5"><span class="${badgeColor} px-2 py-0.5 rounded-md font-bold text-[10px]">${st}</span></td>
+            <td class="p-2.5 text-slate-500 dark:text-slate-400">${tp}</td>
           </tr>`;
       });
 
-      const now = new Date();
       document.getElementById('lastUpdateText').innerText = `Diperbarui: ${now.toLocaleTimeString('id-ID')} WIT`;
     }
 
-    // --- SIMULASI DEMO ---
+    // --- SIMULASI DEMO JIKA SERVER OFFLINE ---
     function renderDemoOrEmpty(keyword) {
       document.getElementById('emptyBox').classList.add('hidden');
       document.getElementById('studentCard').classList.remove('hidden');
@@ -501,7 +546,7 @@
       document.getElementById('statusTepatWaktu').innerText = "Status: Tepat Waktu";
 
       document.getElementById('timePulang').innerText = "--:--";
-      document.getElementById('statusPulang').innerText = "Status: Belum Pulang";
+      document.getElementById('statusPulang').innerText = "Status: Belum Scan Pulang";
 
       const badge = document.getElementById('badgeStatusHariIni');
       badge.className = "px-3 py-1.5 rounded-xl font-extrabold text-xs text-center bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 shadow-sm";
