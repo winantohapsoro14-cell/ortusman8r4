@@ -263,6 +263,18 @@
       return "";
     }
 
+    // Helper khusus mengekstrak nama Kelas asli (Mencegah kata "SISWA" dari kolom Peran)
+    function getKelasAsli(row) {
+      let kls = getVal(row, 8, 'kelas', 'Kelas', 'KELAS');
+      if (!kls || String(kls).trim().toUpperCase() === "SISWA") {
+        kls = getVal(row, 3, 'kelas', 'Kelas', 'KELAS');
+      }
+      if (!kls || String(kls).trim().toUpperCase() === "SISWA") {
+        return "-";
+      }
+      return String(kls).trim();
+    }
+
     // --- DARK MODE TOGGLE ---
     function toggleDarkMode() {
       const isDark = document.documentElement.classList.toggle('dark');
@@ -309,7 +321,7 @@
 
           const matchedLogs = rawLogs.filter(row => {
             const nis   = String(getVal(row, 2, 'nis', 'NIS', 'id')).toLowerCase();
-            const kelas = String(getVal(row, 3, 'kelas', 'Kelas', 'KELAS')).toLowerCase();
+            const kelas = String(getKelasAsli(row)).toLowerCase();
             const nama  = String(getVal(row, 4, 'nama', 'Nama', 'NAMA')).toLowerCase();
             
             return nis.includes(keyword) || nama.includes(keyword) || kelas.includes(keyword);
@@ -327,8 +339,9 @@
             if (nis && !uniqueStudentsMap.has(nis)) {
               uniqueStudentsMap.set(nis, {
                 nis: nis,
-                kelas: getVal(row, 3, 'kelas', 'Kelas', 'KELAS') || "SMAN 8 RAJA AMPAT",
-                nama: getVal(row, 4, 'nama', 'Nama', 'NAMA') || "Siswa"
+                kelas: getKelasAsli(row),
+                nama: getVal(row, 4, 'nama', 'Nama', 'NAMA') || "Siswa",
+                noWaWali: getVal(row, 7, 'hp_walikelas', 'noWaWali', 'wa')
               });
             }
           });
@@ -415,19 +428,29 @@
 
       const latestLog = logs[0];
       const namaSiswa  = getVal(latestLog, 4, 'nama', 'Nama', 'NAMA') || "Siswa Terdaftar";
-      const kelasSiswa = getVal(latestLog, 3, 'kelas', 'Kelas', 'KELAS') || "SMAN 8 RAJA AMPAT";
+      const kelasSiswa = getKelasAsli(latestLog);
+      
+      // Ambil Nomor WA Wali Kelas dari Backend (Index 7)
+      let noWaWali = String(getVal(latestLog, 7, 'hp_walikelas', 'noWaWali', 'wa') || "").replace(/[^0-9]/g, '');
 
       document.getElementById('infoNama').innerText = namaSiswa;
       document.getElementById('infoNis').innerText = `ID / NIS: ${nis}`;
-      document.getElementById('infoKelas').innerText = String(kelasSiswa).toUpperCase();
+      document.getElementById('infoKelas').innerText = `KELAS ${kelasSiswa.toUpperCase()}`;
       
       // Avatar Inisial
       const initials = namaSiswa.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
       document.getElementById('studentAvatar').innerText = initials || 'S';
 
-      // Whatsapp Direct Message
+      // Whatsapp Direct Message Integration
       const waMessage = encodeURIComponent(`Halo Bpk/Ibu Wali Kelas, saya Orang Tua dari ${namaSiswa} (Kelas ${kelasSiswa}). Ingin mengonfirmasi mengenai kehadiran anak saya.`);
-      document.getElementById('btnWhatsapp').href = `https://wa.me/6281234567890?text=${waMessage}`;
+      
+      const btnWa = document.getElementById('btnWhatsapp');
+      if (noWaWali) {
+        btnWa.href = `https://api.whatsapp.com/send/?phone=${noWaWali}&text=${waMessage}`;
+      } else {
+        // Fallback jika nomor wali kelas belum terisi
+        btnWa.href = `https://api.whatsapp.com/send/?text=${waMessage}`;
+      }
 
       // Filter Log Hari Ini / Terakhir untuk Scan Masuk & Pulang
       const now = new Date();
@@ -439,7 +462,6 @@
         return tgl.includes(todayISO) || tgl.includes(String(todayNum));
       });
 
-      // Apabila format tanggal berbeda, gunakan seluruh log aktif siswa
       if (todayLogs.length === 0) {
         todayLogs = logs;
       }
